@@ -38,7 +38,7 @@
                             </button>
                         </div>
                         <div class="text-gray-500 text-center fw-semibold fs-6">I already have an account. 
-                        <a href="#" class="link-primary">Sign in</a></div>
+                        <a href="{{ route('login') }}" class="link-primary">Sign in</a></div>
                     </form>
                 </div>
                 <div class="d-flex flex-stack">

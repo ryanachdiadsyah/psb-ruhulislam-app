@@ -36,7 +36,7 @@ class PhoneVerificationController extends Controller
         $code = $otp->generateForUser($user->id);
         dispatch(new SendOtpWhatsapp(
             $user->phone_number,
-            "Assalamualaikum, Terima Kasih sudah mendaftarkan nomor Anda pada aplikasi Penerimaan Santri Baru. Kode verifikasi Anda adalah: {$code}"
+            "Assalamualaikum, Terima Kasih sudah mendaftarkan nomor Anda pada aplikasi Penerimaan Santri Baru.\n\nKode OTP anda adalah : *{$code}*\n\n_Jangan berikan kode ini kepada siapapun._\n_Ruhul Islam Anak Bangsa_"
         ));
         return back()->with('status', 'OTP sent');
     }
