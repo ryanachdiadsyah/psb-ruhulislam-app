@@ -31,7 +31,7 @@
                             </button>
                         </div>
                         <div class="text-gray-500 text-center fw-semibold fs-6">I don't have an account. 
-                        <a href="#" class="link-primary">Sign up</a></div>
+                        <a href="{{ route('register') }}" class="link-primary">Sign up</a></div>
                     </form>
                 </div>
                 <div class="d-flex flex-stack">

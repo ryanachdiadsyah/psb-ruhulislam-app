@@ -4,7 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Services\Whatsapp\WhatsappGateway;
-use App\Services\Whatsapp\LogWhatsappGateway;
+use App\Services\Whatsapp\WahaWhatsappGateway;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -13,7 +13,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(WhatsappGateway::class, LogWhatsappGateway::class);
+        $this->app->bind(
+            WhatsappGateway::class,
+            WahaWhatsappGateway::class
+        );
     }
 
     /**

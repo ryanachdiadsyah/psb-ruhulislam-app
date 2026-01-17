@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Services\OtpService;
 use Illuminate\Support\Facades\Auth;
 use App\Services\Whatsapp\WhatsappGateway;
+use App\Jobs\SendOtpWhatsapp;
 
 class PhoneVerificationController extends Controller
 {
@@ -32,16 +33,11 @@ class PhoneVerificationController extends Controller
     public function resend(Request $request, OtpService $otp, WhatsappGateway $wa)
     {
         $user = $request->user();
-
-        // rate limit (yang sudah ada)
-
         $code = $otp->generateForUser($user->id);
-
-        $wa->send(
+        dispatch(new SendOtpWhatsapp(
             $user->phone_number,
-            "Kode verifikasi Anda: {$code}"
-        );
-
+            "Assalamualaikum, Terima Kasih sudah mendaftarkan nomor Anda pada aplikasi Penerimaan Santri Baru. Kode verifikasi Anda adalah: {$code}"
+        ));
         return back()->with('status', 'OTP sent');
     }
 }
