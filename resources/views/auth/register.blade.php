@@ -38,13 +38,13 @@
                             </button>
                         </div>
                         <div class="text-gray-500 text-center fw-semibold fs-6">I already have an account. 
-                        <a href="#" class="link-primary">Sign in</a></div>
+                        <a href="{{ route('login') }}" class="link-primary">Sign in</a></div>
                     </form>
                 </div>
                 <div class="d-flex flex-stack">
                     <div class="d-flex fw-semibold text-primary fs-base gap-5">
-                        <a href="pages/team.html" target="_blank">Terms</a>
-                        <a href="pages/contact.html" target="_blank">Contact Us</a>
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#modalTos">Terms and Conditions</a>
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#modalPrivacyPolicy">Privacy Policy</a>
                     </div>
                 </div>
             </div>

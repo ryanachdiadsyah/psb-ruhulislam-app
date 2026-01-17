@@ -21,7 +21,7 @@
                         </div>
                         <div class="d-flex flex-stack flex-wrap gap-3 fs-base fw-semibold mb-8">
                             <div></div>
-                            <a href="#" class="link-primary">Forgot Password ?</a>
+                            <a href="{{ route('password.request') }}" class="link-primary">Forgot Password ?</a>
                         </div>
                         <div class="d-grid mb-10">
                             <button type="submit" id="kt_sign_in_submit" class="btn btn-primary">
@@ -36,8 +36,8 @@
                 </div>
                 <div class="d-flex flex-stack">
                     <div class="d-flex fw-semibold text-primary fs-base gap-5">
-                        <a href="pages/team.html" target="_blank">Terms</a>
-                        <a href="pages/contact.html" target="_blank">Contact Us</a>
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#modalTos">Terms and Conditions</a>
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#modalPrivacyPolicy">Privacy Policy</a>
                     </div>
                 </div>
             </div>
