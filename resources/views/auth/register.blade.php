@@ -43,8 +43,8 @@
                 </div>
                 <div class="d-flex flex-stack">
                     <div class="d-flex fw-semibold text-primary fs-base gap-5">
-                        <a href="#" data-bs-toggle="modal" data-bs-target="#modalTos">Terms</a>
-                        <a href="pages/contact.html" target="_blank">Contact Us</a>
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#modalTos">Terms and Conditions</a>
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#modalPrivacyPolicy">Privacy Policy</a>
                     </div>
                 </div>
             </div>
