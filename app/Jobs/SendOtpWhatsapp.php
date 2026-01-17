@@ -15,6 +15,9 @@ class SendOtpWhatsapp implements ShouldQueue
 
     public string $phone;
     public string $message;
+    public $tries = 3;
+    public $backoff = [10, 30, 60];
+
 
     public function __construct(string $phone, string $message)
     {
@@ -30,11 +33,22 @@ class SendOtpWhatsapp implements ShouldQueue
         sleep(rand(3, 5));
 
         // send message
-        $wa->send($this->phone, $this->message);
+        if (! $wa->send($this->phone, $this->message)) {
+            throw new \Exception('WA send failed');
+        }
 
         sleep(1);
 
         // typing stop
         $wa->presence($this->phone, 'stop');
+    }
+
+    public function failed(\Throwable $e): void
+    {
+        \Log::error('OTP WA FAILED', [
+            'phone' => $this->phone,
+            'message' => $this->message,
+            'error' => $e->getMessage(),
+        ]);
     }
 }
