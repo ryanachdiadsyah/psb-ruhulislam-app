@@ -5,7 +5,8 @@
         <div class="bg-body d-flex flex-column flex-center rounded-4 w-md-600px p-10">
             <div class="d-flex flex-center flex-column align-items-stretch h-lg-100 w-md-400px">
                 <div class="d-flex flex-center flex-column flex-column-fluid pb-15 pb-lg-20">
-                    <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" method="POST" action="#">
+                    <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" method="POST" action="{{ route('login') }}">
+                        @csrf
                         <div class="text-center mb-11">
                             <h1 class="text-gray-900 fw-bolder mb-3">Sign In</h1>
                             <div class="text-gray-500 fw-semibold fs-6">To Get Access to this application</div>
