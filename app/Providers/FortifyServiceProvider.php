@@ -29,6 +29,13 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
+        Fortify::authenticateUsing(function (Request $request) {
+            return Auth::attempt([
+                'phone_number' => $request->phone_number,
+                'password' => $request->password,
+            ]) ? Auth::user() : null;
+        });
         Fortify::createUsersUsing(CreateNewUser::class);
         Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
