@@ -45,6 +45,7 @@
                         <a href="pages/team.html" target="_blank">Terms</a>
                         <a href="pages/contact.html" target="_blank">Contact Us</a>
                     </div>
+                </div>
             </div>
         </div>
     </div>
