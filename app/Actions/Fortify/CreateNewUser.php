@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
+use App\Services\OtpService;
 
 class CreateNewUser implements CreatesNewUsers
 {
@@ -21,20 +22,23 @@ class CreateNewUser implements CreatesNewUsers
     {
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
-            'email' => [
+            'phone_number' => [
                 'required',
                 'string',
-                'email',
-                'max:255',
+                'max:15',
                 Rule::unique(User::class),
             ],
             'password' => $this->passwordRules(),
         ])->validate();
 
-        return User::create([
+        $user = User::create([
             'name' => $input['name'],
-            'email' => $input['email'],
+            'phone_number' => $input['phone_number'],
             'password' => Hash::make($input['password']),
         ]);
+
+        app(OtpService::class)->generateForUser($user->id);
+
+        return $user;
     }
 }

@@ -21,3 +21,7 @@ Route::view('/verify-phone', 'auth.verify-phone')
 Route::post('/verify-phone', [PhoneVerificationController::class, 'verify'])
     ->middleware('auth')
     ->name('phone.verify');
+
+Route::post('/verify-phone/resend', [PhoneVerificationController::class, 'resend'])
+    ->middleware('auth')
+    ->name('phone.verify.resend');

@@ -8,4 +8,9 @@
     @enderror
 
     <button type="submit">Verify</button>
+
+</form>
+<form method="POST" action="{{ route('phone.verify.resend') }}">
+    @csrf
+    <button type="submit">Resend OTP</button>
 </form>
