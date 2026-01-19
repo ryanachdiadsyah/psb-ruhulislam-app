@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
-use App\Services\OtpService;
 
 class CreateNewUser implements CreatesNewUsers
 {
@@ -25,10 +24,13 @@ class CreateNewUser implements CreatesNewUsers
             'phone_number' => [
                 'required',
                 'string',
-                'max:15',
+                'regex:/^08[0-9]{8,11}$/',
                 Rule::unique(User::class),
             ],
             'password' => $this->passwordRules(),
+        ],
+        [
+            'phone_number.numeric' => 'The phone number must be numeric.',
         ])->validate();
 
         $user = User::create([
@@ -36,8 +38,6 @@ class CreateNewUser implements CreatesNewUsers
             'phone_number' => $input['phone_number'],
             'password' => Hash::make($input['password']),
         ]);
-
-        app(OtpService::class)->generateForUser($user->id);
 
         return $user;
     }

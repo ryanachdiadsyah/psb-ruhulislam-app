@@ -13,19 +13,31 @@
                         </div>
                         <div class="fv-row mb-8">
                             <label for="name">Name</label>
-                            <input type="text" placeholder="Your Name" name="name" id="name" class="form-control bg-transparent" required />
+                            <input type="text" placeholder="Your Name" name="name" id="name" class="form-control bg-transparent @error('name') is-invalid @enderror" value="{{ old('name') ?? '' }}" required />
+                            @error('name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="fv-row mb-8">
                             <label for="phone_number">Phone Number</label>
-                            <input type="text" placeholder="0812xxxx" name="phone_number" id="phone_number" class="form-control bg-transparent" required />
+                            <input type="text" placeholder="0812xxxx" name="phone_number" id="phone_number" class="form-control bg-transparent @error('phone_number') is-invalid @enderror" value="{{ old('phone_number') ?? '' }}" required />
+                            @error('phone_number')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="fv-row mb-3">
                             <label for="password">Password</label>
-                            <input type="password" placeholder="Password" name="password" autocomplete="off" class="form-control bg-transparent" required />
+                            <input type="password" placeholder="Password" name="password" autocomplete="off" class="form-control bg-transparent @error('password') is-invalid @enderror" value="{{ old('password') ?? '' }}" required />
+                            @error('password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="fv-row mb-3">
                             <label for="password_confirmation">Confirm Password</label>
-                            <input type="password" placeholder="Confirm Password" name="password_confirmation" autocomplete="off" class="form-control bg-transparent" required />
+                            <input type="password" placeholder="Confirm Password" name="password_confirmation" autocomplete="off" class="form-control bg-transparent @error('password_confirmation') is-invalid @enderror" required />
+                            @error('password_confirmation')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="d-flex flex-stack flex-wrap gap-3 fs-base fw-semibold mb-8">
                             <div></div>

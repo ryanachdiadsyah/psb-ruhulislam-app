@@ -5,8 +5,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\EnsurePhoneIsVerified;
 use App\Http\Controllers\Auth\PhoneVerificationController;
 
+Route::get('/', function () {
+    return App::environment('production') ? view('welcome') : redirect()->route('dashboard');
+})->name('home');
+
 Route::view('/login', 'auth.login')->name('login');
-Route::view('/register', 'auth.register')->name('register');
 Route::view('/forgot-password', 'auth.forgot-password')->name('password.request');
 
 
@@ -22,6 +25,6 @@ Route::post('/verify-phone', [PhoneVerificationController::class, 'verify'])
     ->middleware('auth')
     ->name('phone.verify');
 
-Route::post('/verify-phone/resend', [PhoneVerificationController::class, 'resend'])
+Route::post('/verify-phone/request', [PhoneVerificationController::class, 'requestOtp'])
     ->middleware('auth')
-    ->name('phone.verify.resend');
+    ->name('phone.verify.request');
