@@ -24,6 +24,8 @@ class WahaWhatsappGateway implements WhatsappGateway
 
         if (! $response->successful()) {
             \Log::error('WAHA SEND FAILED', [
+                'phone' => $phone,
+                'status' => $response->status(),
                 'response' => $response->body(),
             ]);
         }
@@ -33,18 +35,21 @@ class WahaWhatsappGateway implements WhatsappGateway
 
     public function presence(string $phoneNumber, string $action): bool
     {
-        $config = config('whatsapp.waha');
+        if (! in_array($action, ['start', 'stop'], true)) {
+            throw new \InvalidArgumentException('Invalid presence action');
+        }
 
+        $config = config('whatsapp.waha');
         $phone = PhoneNormalizer::toWaha($phoneNumber);
 
         $response = Http::withBasicAuth(
                 $config['username'],
                 $config['password']
             )
-            ->timeout(3)
+            ->timeout($config['timeout'] ?? 5)
             ->post($config['base_url'].'/send/chat-presence', [
                 'phone'  => $phone,
-                'action' => $action, // start | stop
+                'action' => $action,
             ]);
 
         return $response->successful();
