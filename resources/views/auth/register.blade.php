@@ -37,7 +37,7 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div class="fv-row mb-3">
+                        <div class="fv-row mb-8">
                             <label for="password">Password</label>
                             <input type="password" placeholder="Password" name="password" autocomplete="off" class="form-control bg-transparent @error('password') is-invalid @enderror" value="{{ old('password') ?? '' }}" required />
                             @error('password')

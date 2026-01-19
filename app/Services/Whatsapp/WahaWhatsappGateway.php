@@ -23,10 +23,9 @@ class WahaWhatsappGateway implements WhatsappGateway
             ]);
 
         if (! $response->successful()) {
-            \Log::error('WAHA SEND FAILED', [
-                'phone' => $phone,
+            \Log::error('gateway.whatsapp.send_failed', [
+                'phone_hash' => sha1($phone),
                 'status' => $response->status(),
-                'response' => $response->body(),
             ]);
         }
 
@@ -51,6 +50,13 @@ class WahaWhatsappGateway implements WhatsappGateway
                 'phone'  => $phone,
                 'action' => $action,
             ]);
+        
+        if (! $response->successful()) {
+            \Log::warning('gateway.whatsapp.presence_failed', [
+                'phone_hash' => sha1($phone),
+                'action' => $action,
+            ]);
+        }
 
         return $response->successful();
     }
