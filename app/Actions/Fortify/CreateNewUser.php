@@ -24,10 +24,13 @@ class CreateNewUser implements CreatesNewUsers
             'phone_number' => [
                 'required',
                 'string',
-                'max:15',
+                'regex:/^08[0-9]{8,11}$/',
                 Rule::unique(User::class),
             ],
             'password' => $this->passwordRules(),
+        ],
+        [
+            'phone_number.numeric' => 'The phone number must be numeric.',
         ])->validate();
 
         $user = User::create([

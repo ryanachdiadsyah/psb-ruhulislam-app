@@ -15,4 +15,16 @@ class LogWhatsappGateway implements WhatsappGateway
 
         return true;
     }
+
+    public function presence(string $phoneNumber, string $action): bool
+    {
+        Log::info('[WA MOCK PRESENCE]', [
+            'to' => $phoneNumber,
+            'action' => $action,
+        ]);
+
+        return true;
+    }
+
+    
 }

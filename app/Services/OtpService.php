@@ -9,17 +9,33 @@ use Illuminate\Support\Carbon;
 
 class OtpService
 {
-    public function generateForUser(int $userId): string
+    public function generateForUser(int $userId, string $channel): string
     {
-        // Hapus OTP lama
-        OtpVerification::where('user_id', $userId)->delete();
+        // Cek OTP aktif
+        $active = OtpVerification::where('user_id', $userId)->first();
+
+        if ($active) {
+            // Jika masih valid & attempts belum habis, KUNCI channel
+            if (now()->lessThan($active->expires_at) && $active->attempts < 5) {
+                if ($active->channel !== $channel) {
+                    throw new \RuntimeException('OTP already sent via different channel');
+                }
+
+                // Reuse OTP lama (tidak regenerate)
+                return 'REUSE'; // controller yang memutuskan kirim ulang atau tidak
+            }
+
+            // OTP expired / attempts habis → reset
+            $active->delete();
+        }
 
         $otp = random_int(100000, 999999);
 
         OtpVerification::create([
             'user_id'    => $userId,
-            'code'       => Hash::make($otp),
-            'expires_at' => Carbon::now()->addMinutes(5),
+            'channel'    => $channel,
+            'code'       => \Hash::make($otp),
+            'expires_at' => now()->addMinutes(5),
             'attempts'   => 0,
         ]);
 
