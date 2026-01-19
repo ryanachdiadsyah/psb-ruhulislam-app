@@ -31,6 +31,23 @@ class FortifyServiceProvider extends ServiceProvider
     public function boot(): void
     {
 
+        Fortify::registerView(function () {
+            return view('auth.register');
+        });
+
+        Fortify::validateRegistrationUsing(function (Request $request) {
+            Validator::make($request->all(), [
+                'name' => ['required', 'string', 'max:255'],
+                'phone_number' => [
+                    'required',
+                    'string',
+                    'regex:/^08[0-9]{8,11}$/',
+                    'unique:users,phone_number',
+                ],
+                'password' => ['required', 'string', 'min:8', 'confirmed'],
+            ])->validate();
+        });
+
         // ✅ LOGIN RATE LIMITER (WAJIB ADA SEBELUM AUTH)
         RateLimiter::for('login', function (Request $request) {
             return Limit::perMinute(5)->by(

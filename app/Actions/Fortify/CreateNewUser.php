@@ -37,8 +37,6 @@ class CreateNewUser implements CreatesNewUsers
             'password' => Hash::make($input['password']),
         ]);
 
-        app(OtpService::class)->generateForUser($user->id);
-
         return $user;
     }
 }
