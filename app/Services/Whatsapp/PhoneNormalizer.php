@@ -12,6 +12,10 @@ class PhoneNormalizer
             $phone = '62' . substr($phone, 1);
         }
 
+        if (! str_starts_with($phone, '62')) {
+            $phone = '62' . $phone;
+        }
+
         return $phone . '@s.whatsapp.net';
     }
 }
