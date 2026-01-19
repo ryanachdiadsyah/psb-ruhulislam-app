@@ -61,11 +61,10 @@ class ResetPasswordController extends Controller
             'phone_hash' => sha1($request->phone_number),
         ]);
 
-        return redirect()->route('password.reset')->with([
+        return redirect()->route('password.reset', 'phone_number=' . urlencode($request->phone_number))->with([
             'status' => 'success',
             'message' => 'Jika nomor terdaftar, OTP akan dikirim.',
-            'otp_sent' => true,
-            'phone_number' => $request->phone_number,
+            'otp_sent' => true,    
         ]);
     }
 
@@ -82,7 +81,7 @@ class ResetPasswordController extends Controller
         // Pesan netral (anti user enumeration)
         if (! $user) {
             return back()->withErrors([
-                'otp' => 'Invalid OTP or expired.',
+                'otp' => 'Invalid OTP or expired. please try again from the beginning.',
             ]);
         }
 
