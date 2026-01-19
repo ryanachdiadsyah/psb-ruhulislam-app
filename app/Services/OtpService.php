@@ -71,6 +71,7 @@ class OtpService
         if ($purpose === self::PURPOSE_VERIFY_PHONE) {
             User::where('id', $userId)->update([
                 'phone_verified_at' => now(),
+                'verified_channel' => $record->channel,
             ]);
         }
 

@@ -5,6 +5,18 @@
         <div class="bg-body d-flex flex-column flex-center rounded-4 w-md-600px p-10">
             <div class="d-flex flex-center flex-column align-items-stretch h-lg-100 w-md-400px">
                 <div class="d-flex flex-center flex-column flex-column-fluid pb-15 pb-lg-20">
+                    @if (session('status'))
+                        <div class="alert alert-dismissible bg-light-{{ session('status') }} d-flex flex-column flex-sm-row p-5 mb-10">
+                            <i class="ki-duotone ki-notification-bing fs-2hx text-primary me-4 mb-5 mb-sm-0"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                            <div class="d-flex flex-column pe-0 pe-sm-10">
+                                <h4 class="fw-semibold"></h4>
+                                <p>{{ session('message') }}</p>
+                            </div>
+                            <button type="button" class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" data-bs-dismiss="alert">
+                                <i class="ki-duotone ki-cross fs-1 text-primary"><span class="path1"></span><span class="path2"></span></i>
+                            </button>
+                        </div>
+                    @endif
                     <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" method="POST" action="{{ route('register') }}">
                         @csrf
                         <div class="text-center mb-11">

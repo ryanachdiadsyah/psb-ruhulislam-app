@@ -8,8 +8,8 @@
                         <img alt="Logo" src="{{ asset('assets/media/logos/custom-2.svg') }}" class="h-40px" />
                     </a>
                 </div>
-                <h1 class="fw-bolder text-gray-900 mb-5">Reset Password</h1>
-                <div class="fw-semibold fs-6 text-gray-500 mb-8">Don't worry, we'll help you reset your password.</div>
+                <h1 class="fw-bolder text-gray-900 mb-5">Enter Your New Password</h1>
+                <div class="fw-semibold fs-6 text-gray-500 mb-8">One step closer to accessing your account.</div>
 
                 @if (session('status'))
                     <div class="alert alert-dismissible bg-light-{{ session('status') }} d-flex flex-column flex-sm-row p-5 mb-10">
@@ -24,17 +24,32 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('password.otp.request') }}">
+                <form method="POST" action="{{ route('password.otp.update') }}">
                 @csrf
                     <div class="fv-row mb-8">
-                        <input type="text" name="phone_number" id="phone_number" placeholder="Enter Phone Number" class="form-control bg-transparent @error('phone_number') is-invalid @enderror" required/>
+                        <input type="hidden" name="phone_number" id="phone_number" value="{{ session('phone_number') ?? '' }}" required/>
                     </div>
-                    @error('phone_number')
+                    <div class="fv-row mb-8">
+                        <input type="text" name="otp" id="otp" placeholder="Enter OTP" class="form-control bg-transparent @error('otp') is-invalid @enderror" required/>
+                    </div>
+                    @error('otp')
                         <div class="text-danger mb-5">{{ $message }}</div>
                     @enderror
+                    <div class="fv-row mb-3">
+                        <input type="password" placeholder="Password" name="password" autocomplete="off" class="form-control bg-transparent @error('password') is-invalid @enderror" value="{{ old('password') ?? '' }}" required />
+                        @error('password')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="fv-row mb-3">
+                        <input type="password" placeholder="Confirm Password" name="password_confirmation" autocomplete="off" class="form-control bg-transparent @error('password_confirmation') is-invalid @enderror" required />
+                        @error('password_confirmation')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                     <div class="d-grid mb-10">
                         <button type="submit" class="btn btn-primary" id="kt_password_reset_submit">
-                            <span class="indicator-label">Verify Phone</span>
+                            <span class="indicator-label">Reset Password</span>
                             <span class="indicator-progress">Please wait... 
                             <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
                         </button>

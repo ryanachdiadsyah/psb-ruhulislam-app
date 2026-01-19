@@ -4,30 +4,49 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\EnsurePhoneIsVerified;
 use App\Http\Controllers\Auth\PhoneVerificationController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 
 Route::get('/', function () {
     return App::environment('production') ? view('welcome') : redirect()->route('dashboard');
 })->name('home');
 
 
-Route::view('/dashboard', 'app.dashboard')
-    ->middleware(['auth', EnsurePhoneIsVerified::class])
-    ->name('dashboard');
+Route::middleware('guest')->group(function () {
+    Route::view('/login', 'auth.login')->name('login');
+    Route::view('/register', 'auth.register')->name('register');
+    
+    Route::view('/forgot-password', 'auth.forgot-password')
+        ->name('password.request');
+    
+    Route::post('/forgot-password/request', [ResetPasswordController::class, 'requestOtp'])
+        ->middleware(['throttle:verify-phone.request'])
+        ->name('password.otp.request');
+    
+    Route::view('/reset-password', 'auth.reset-password')
+        ->name('password.reset');
+    
+    Route::post('/reset-password', [ResetPasswordController::class, 'reset'])
+        ->middleware(['throttle:10,1'])
+        ->name('password.otp.update');
+});
 
-Route::view('/verify-phone', 'auth.verify-phone')
-    ->middleware('auth')
-    ->name('phone.verify.notice');
+Route::middleware('auth')->group(function () {
+    Route::view('/verify-phone', 'auth.verify-phone')        
+        ->name('phone.verify.notice');
+    
+    Route::post('/verify-phone', [PhoneVerificationController::class, 'verify'])
+        ->middleware([
+            'throttle:10,1', // max 10 attempt / menit
+        ])
+        ->name('phone.verify');
+    
+    Route::post('/verify-phone/request', [PhoneVerificationController::class, 'requestOtp'])
+        ->middleware([
+            'throttle:verify-phone.request',
+        ])
+        ->name('phone.verify.request');
 
-Route::post('/verify-phone', [PhoneVerificationController::class, 'verify'])
-    ->middleware([
-        'auth',
-        'throttle:10,1', // max 10 attempt / menit
-    ])
-    ->name('phone.verify');
-
-Route::post('/verify-phone/request', [PhoneVerificationController::class, 'requestOtp'])
-    ->middleware([
-        'auth',
-        'throttle:verify-phone.request',
-    ])
-    ->name('phone.verify.request');
+    Route::view('/dashboard', 'app.dashboard')
+        ->middleware([EnsurePhoneIsVerified::class])
+        ->name('dashboard');
+});

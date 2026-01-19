@@ -28,11 +28,6 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Fortify::loginView(fn() => view('auth.login'));
-        Fortify::registerView(fn() => view('auth.register'));
-        Fortify::requestPasswordResetLinkView(fn() => view('auth.forgot-password'));    
-        // Fortify::resetPasswordView(fn(Request $request) => view('auth.reset-password', ['request' => $request]));
-
         // ✅ LOGIN RATE LIMITER (WAJIB ADA SEBELUM AUTH)
         RateLimiter::for('login', function (Request $request) {
             return Limit::perMinute(5)->by(
@@ -64,6 +59,6 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::createUsersUsing(CreateNewUser::class);
         Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
-        Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
+        // Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
     }
 }
