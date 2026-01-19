@@ -57,6 +57,10 @@ class ResetPasswordController extends Controller
             ));
         }
 
+        \Log::info('auth.reset_password.otp_requested', [
+            'phone_hash' => sha1($request->phone_number),
+        ]);
+
         return redirect()->route('password.reset')->with([
             'status' => 'success',
             'message' => 'Jika nomor terdaftar, OTP akan dikirim.',
@@ -97,6 +101,10 @@ class ResetPasswordController extends Controller
         // Set password baru
         $user->update([
             'password' => Hash::make($request->password),
+        ]);
+
+        \Log::notice('auth.reset_password.success', [
+            'user_id' => $user->id,
         ]);
 
         return redirect()->route('login')->with([

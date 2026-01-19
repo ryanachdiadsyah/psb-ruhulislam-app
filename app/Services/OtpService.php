@@ -25,6 +25,11 @@ class OtpService
                 if ($active->channel !== $channel) {
                     throw new \RuntimeException('OTP already sent via different channel');
                 }
+                \Log::notice('otp.reuse', [
+                    'user_id' => $userId,
+                    'channel' => $channel,
+                    'purpose' => $purpose,
+                ]);
                 return self::REUSE;
             }
             $active->delete();
@@ -44,6 +49,11 @@ class OtpService
                 'attempts'   => 0,
             ]);
         });
+        \Log::info('otp.generated', [
+            'user_id' => $userId,
+            'channel' => $channel,
+            'purpose' => $purpose,
+        ]);
 
         return (string) $otp;
     }
@@ -59,6 +69,11 @@ class OtpService
 
         if (now()->greaterThan($record->expires_at) || $record->attempts >= 5) {
             $record->delete();
+            \Log::warning('otp.verify_failed', [
+                'user_id' => $userId,
+                'reason' => 'invalid_or_expired',
+                'purpose' => $purpose,
+            ]);
             return false;
         }
 
@@ -74,6 +89,10 @@ class OtpService
                 'verified_channel' => $record->channel,
             ]);
         }
+        \Log::info('otp.verified', [
+            'user_id' => $userId,
+            'purpose' => $purpose,
+        ]);
 
         $record->delete();
         return true;
