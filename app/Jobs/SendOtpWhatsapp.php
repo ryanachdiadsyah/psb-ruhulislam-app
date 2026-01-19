@@ -15,39 +15,38 @@ class SendOtpWhatsapp implements ShouldQueue
 
     public string $phone;
     public string $message;
+
     public $tries = 3;
     public $backoff = [10, 30, 60];
 
-
     public function __construct(string $phone, string $message)
     {
+        $this->onQueue('otp');
         $this->phone = $phone;
         $this->message = $message;
     }
 
     public function handle(WhatsappGateway $wa): void
     {
-        // typing start
-        $wa->presence($this->phone, 'start');
+        try {
+            $wa->presence($this->phone, 'start');
 
-        sleep(rand(3, 5));
+            sleep(rand(3, 5));
 
-        // send message
-        if (! $wa->send($this->phone, $this->message)) {
-            throw new \Exception('WA send failed');
+            if (! $wa->send($this->phone, $this->message)) {
+                throw new \Exception('WA send failed');
+            }
+
+            sleep(1);
+        } finally {
+            $wa->presence($this->phone, 'stop');
         }
-
-        sleep(1);
-
-        // typing stop
-        $wa->presence($this->phone, 'stop');
     }
 
     public function failed(\Throwable $e): void
     {
         \Log::error('OTP WA FAILED', [
             'phone' => $this->phone,
-            'message' => $this->message,
             'error' => $e->getMessage(),
         ]);
     }

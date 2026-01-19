@@ -52,8 +52,10 @@ class PhoneVerificationController extends Controller
         // Kalau OTP lama masih aktif → jangan kirim ulang
         if ($code === 'REUSE') {
             return back()->with([
-                'status'    => 'info',
-                'message'   => 'OTP sudah dikirim melalui channel lain. Silakan tunggu sampai OTP kadaluarsa.',
+                'status' => 'info',
+                'message' => 'OTP sudah dikirim sebelumnya.',
+                'otp_sent' => true,
+                'otp_sent_at' => now()->timestamp,
             ]);
         }
 
@@ -61,14 +63,19 @@ class PhoneVerificationController extends Controller
         if ($data['channel'] === 'whatsapp') {
             dispatch(new SendOtpWhatsapp(
                 $user->phone_number,
-                "Assalamualaikum,\n\nKode OTP Anda adalah: *{$code}*\n\nJangan berikan kode ini kepada siapapun."
+                "Assalamualaikum,\n\nKode OTP Anda adalah: *{$code}*\n\n_Jangan berikan kode ini kepada siapapun._ Terima kasih.",
             ));
         }
 
-        // SMS menyusul nanti
+        if ($data['channel'] === 'sms') {
+            // SMS menyusul nanti
+        }
+
         return back()->with([
-            'status'    => 'success',
-            'message'   => 'Kode OTP telah dikirim ke nomor telepon Anda melalui ' . strtoupper($data['channel']) . '.',
+            'status' => 'success',
+            'message' => 'Kode OTP telah dikirim...',
+            'otp_sent' => true,
+            'otp_sent_at' => now()->timestamp,
         ]);
     }
 }

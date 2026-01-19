@@ -9,9 +9,6 @@ Route::get('/', function () {
     return App::environment('production') ? view('welcome') : redirect()->route('dashboard');
 })->name('home');
 
-Route::view('/login', 'auth.login')->name('login');
-Route::view('/forgot-password', 'auth.forgot-password')->name('password.request');
-
 
 Route::view('/dashboard', 'app.dashboard')
     ->middleware(['auth', EnsurePhoneIsVerified::class])
@@ -22,9 +19,15 @@ Route::view('/verify-phone', 'auth.verify-phone')
     ->name('phone.verify.notice');
 
 Route::post('/verify-phone', [PhoneVerificationController::class, 'verify'])
-    ->middleware('auth')
+    ->middleware([
+        'auth',
+        'throttle:10,1', // max 10 attempt / menit
+    ])
     ->name('phone.verify');
 
 Route::post('/verify-phone/request', [PhoneVerificationController::class, 'requestOtp'])
-    ->middleware('auth')
+    ->middleware([
+        'auth',
+        'throttle:verify-phone.request',
+    ])
     ->name('phone.verify.request');

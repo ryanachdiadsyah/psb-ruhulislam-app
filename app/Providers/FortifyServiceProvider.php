@@ -10,11 +10,8 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
-use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
 use Laravel\Fortify\Fortify;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -31,9 +28,10 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Fortify::registerView(function () {
-            return view('auth.register');
-        });
+        Fortify::loginView(fn() => view('auth.login'));
+        Fortify::registerView(fn() => view('auth.register'));
+        Fortify::requestPasswordResetLinkView(fn() => view('auth.forgot-password'));    
+        // Fortify::resetPasswordView(fn(Request $request) => view('auth.reset-password', ['request' => $request]));
 
         // ✅ LOGIN RATE LIMITER (WAJIB ADA SEBELUM AUTH)
         RateLimiter::for('login', function (Request $request) {
@@ -45,6 +43,12 @@ class FortifyServiceProvider extends ServiceProvider
         RateLimiter::for('two-factor', function (Request $request) {
             return Limit::perMinute(5)->by(
                 $request->session()->get('login.id')
+            );
+        });
+
+        RateLimiter::for('verify-phone.request', function (Request $request) {
+            return Limit::perMinute(3)->by(
+                $request->user()?->id ?? $request->ip()
             );
         });
 
