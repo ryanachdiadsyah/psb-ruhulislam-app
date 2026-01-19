@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
 use Laravel\Fortify\Fortify;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -33,19 +34,6 @@ class FortifyServiceProvider extends ServiceProvider
 
         Fortify::registerView(function () {
             return view('auth.register');
-        });
-
-        Fortify::validateRegistrationUsing(function (Request $request) {
-            Validator::make($request->all(), [
-                'name' => ['required', 'string', 'max:255'],
-                'phone_number' => [
-                    'required',
-                    'string',
-                    'regex:/^08[0-9]{8,11}$/',
-                    'unique:users,phone_number',
-                ],
-                'password' => ['required', 'string', 'min:8', 'confirmed'],
-            ])->validate();
         });
 
         // ✅ LOGIN RATE LIMITER (WAJIB ADA SEBELUM AUTH)
