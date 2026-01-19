@@ -1,72 +1,48 @@
-@extends('layouts.auth.base2')
+@extends('layouts.auth.base')
+
 @section('content')
-    <div class="d-flex flex-column flex-center text-center p-10">
-        <div class="card card-flush w-lg-650px py-5">
-            <div class="card-body py-15 py-lg-20">
-                <div class="mb-14">
-                    <a href="index.html" class="">
-                        <img alt="Logo" src="{{ asset('assets/media/logos/custom-2.svg') }}" class="h-40px" />
-                    </a>
-                </div>
-                <h1 class="fw-bolder text-gray-900 mb-5">Reset Password</h1>
-                <div class="fw-semibold fs-6 text-gray-500 mb-8">Don't worry, we'll help you reset your password.</div>
-
-                @if (session('status'))
-                    <div class="alert alert-dismissible bg-light-{{ session('status') }} d-flex flex-column flex-sm-row p-5 mb-10">
-                        <i class="ki-duotone ki-notification-bing fs-2hx text-primary me-4 mb-5 mb-sm-0"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
-                        <div class="d-flex flex-column pe-0 pe-sm-10">
-                            <h4 class="fw-semibold"></h4>
-                            <p>{{ session('message') }}</p>
+    <div class="row justify-content-md-center">
+        <div class="col-md-12 col-lg-4">
+            <div class="card login-box-container">
+                <div class="card-body">
+                    <div class="authent-logo">
+                        <img src="{{ asset('assets/images/logo.png') }}" alt="">
+                    </div>
+                    <div class="authent-text">
+                        <h4>Reset Password</h4>
+                        <small>Don't worry, we'll help you reset your password.</small>
+                    </div>
+                    <form method="POST" action="{{ route('password.otp.request') }}" onsubmit="return processForm(this)">
+                        @csrf
+                        <div class="mb-3">
+                            <div class="form-floating">
+                                <input type="text" class="form-control @error('phone_number') is-invalid @enderror" id="phone_number" name="phone_number" placeholder="Your Phone Number" required autofocus>
+                                <label for="phone_number">Phone Number</label>
+                                @error('phone_number')
+                                    <div class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </div>
+                                @enderror
+                            </div>
                         </div>
-                        <button type="button" class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" data-bs-dismiss="alert">
-                            <i class="ki-duotone ki-cross fs-1 text-primary"><span class="path1"></span><span class="path2"></span></i>
-                        </button>
-                    </div>
-                @endif
-
-                <form method="POST" action="{{ route('password.otp.request') }}">
-                @csrf
-                    <div class="fv-row mb-8">
-                        <input type="text" name="phone_number" id="phone_number" placeholder="Enter Phone Number" class="form-control bg-transparent @error('phone_number') is-invalid @enderror" required/>
-                    </div>
-                    @error('phone_number')
-                        <div class="text-danger mb-5">{{ $message }}</div>
-                    @enderror
-                    <div class="d-grid mb-10">
-                        <button type="submit" class="btn btn-primary" id="kt_password_reset_submit">
-                            <span class="indicator-label">Verify Phone</span>
-                            <span class="indicator-progress">Please wait... 
-                            <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
-                        </button>
-                    </div>
-                </form>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-info m-b-xs">Send OTP</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="d-flex justify-content-between mt-4 px-4 mb-4">
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#modalTos">Terms and Conditions</a>
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#modalPrivacyPolicy">Privacy Policy</a>
+                </div>
             </div>
         </div>
     </div>
 @endsection
 
-@push('scripts')
-    @if (session('otp_sent_at'))
-    <script>
-        (function () {
-            const sentAt = {{ session('otp_sent_at') }};
-            const cooldown = 60; // seconds
-            const timerEl = document.getElementById('otp-timer');
 
-            function tick() {
-                const now = Math.floor(Date.now() / 1000);
-                const left = cooldown - (now - sentAt);
 
-                if (left <= 0) {
-                    timerEl.innerText = '0';
-                    return;
-                }
 
-                timerEl.innerText = left;
-                setTimeout(tick, 1000);
-            }
-            tick();
-        })();
-    </script>
-    @endif
-@endpush
+
+
+
+

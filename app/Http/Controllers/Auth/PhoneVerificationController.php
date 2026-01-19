@@ -25,7 +25,10 @@ class PhoneVerificationController extends Controller
             ]);
         }
 
-        return redirect()->route('dashboard');
+        return redirect()->route('dashboard')->with([
+            'status' => 'success',
+            'message' => 'Phone number verified successfully.',
+        ]);
     }
 
     public function requestOtp(Request $request, OtpService $otp)
@@ -44,7 +47,7 @@ class PhoneVerificationController extends Controller
             $code = $otp->generateForUser($user->id, $data['channel']);
         } catch (\RuntimeException $e) {
             return back()->with([
-                'status'    => 'danger',
+                'status'    => 'error',
                 'message'   => 'OTP sudah dikirim melalui channel lain. Silakan tunggu sampai OTP kadaluarsa.',
             ]);
         }
@@ -68,12 +71,15 @@ class PhoneVerificationController extends Controller
         }
 
         if ($data['channel'] === 'sms') {
-            // SMS menyusul nanti
+            return back()->with([
+                'status' => 'error',
+                'message' => 'Pengiriman OTP melalui SMS belum tersedia saat ini. Silahkan pilih WhatsApp sebagai channel verifikasi.',
+            ]);
         }
 
         return back()->with([
             'status' => 'success',
-            'message' => 'Kode OTP telah dikirim...',
+            'message' => 'Kode OTP telah dikirim, silahkan cek pesan '.$data['channel'].' Anda.',
             'otp_sent' => true,
             'otp_sent_at' => now()->timestamp,
         ]);
