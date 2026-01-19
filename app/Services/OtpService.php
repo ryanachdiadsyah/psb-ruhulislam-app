@@ -9,11 +9,14 @@ use Illuminate\Support\Facades\DB;
 
 class OtpService
 {
+    public const PURPOSE_VERIFY_PHONE = 'verify_phone';
+    public const PURPOSE_RESET_PASSWORD = 'reset_password';
     public const REUSE = 'REUSE';
-
-    public function generateForUser(int $userId, string $channel): string
+    
+    public function generateForUser(int $userId, string $channel, string $purpose = self::PURPOSE_VERIFY_PHONE): string
     {
         $active = OtpVerification::where('user_id', $userId)
+            ->where('purpose', $purpose)
             ->latest('created_at')
             ->first();
 
@@ -29,13 +32,14 @@ class OtpService
 
         $otp = null;
 
-        DB::transaction(function () use ($userId, $channel, &$otp) {
+        DB::transaction(function () use ($userId, $channel, $purpose, &$otp) {
             $otp = random_int(100000, 999999);
 
             OtpVerification::create([
                 'user_id'    => $userId,
                 'channel'    => $channel,
-                'code'       => Hash::make($otp),
+                'purpose'    => $purpose,
+                'code'       => \Hash::make($otp),
                 'expires_at' => now()->addMinutes(5),
                 'attempts'   => 0,
             ]);
@@ -44,9 +48,10 @@ class OtpService
         return (string) $otp;
     }
 
-    public function verifyForUser(int $userId, string $inputOtp): bool
+    public function verifyForUser(int $userId, string $inputOtp, string $purpose = self::PURPOSE_VERIFY_PHONE): bool
     {
         $record = OtpVerification::where('user_id', $userId)
+            ->where('purpose', $purpose)
             ->latest('created_at')
             ->first();
 
@@ -57,14 +62,18 @@ class OtpService
             return false;
         }
 
-        if (! Hash::check($inputOtp, $record->code)) {
+        if (! \Hash::check($inputOtp, $record->code)) {
             $record->increment('attempts');
             return false;
         }
 
-        User::where('id', $userId)->update([
-            'phone_verified_at' => now(),
-        ]);
+        // SUCCESS — tindakan tergantung purpose
+        if ($purpose === self::PURPOSE_VERIFY_PHONE) {
+            User::where('id', $userId)->update([
+                'phone_verified_at' => now(),
+                'verified_channel' => $record->channel,
+            ]);
+        }
 
         $record->delete();
         return true;
