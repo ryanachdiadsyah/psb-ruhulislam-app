@@ -1,4 +1,7 @@
 @extends('layouts.auth.base')
+
+@section('title', 'Verification')
+
 @php
     $otpSent = session('otp_sent');
 @endphp

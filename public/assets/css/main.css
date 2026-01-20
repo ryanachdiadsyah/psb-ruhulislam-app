@@ -791,7 +791,7 @@ body.sidebar-hidden .page-header .navbar #navbarNav #leftNav > li > a#sidebar-to
 
 .page-header .navbar .navbar-brand {
     margin-right: 0;
-    background: url('../images/logo.png') center center no-repeat;
+    background: url('../images/logo-header.png') center center no-repeat;
     background-size: cover;
     width: 40px;
     height: 40px;
