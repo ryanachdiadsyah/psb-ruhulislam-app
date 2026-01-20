@@ -47,4 +47,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function onboarding()
+    {
+        return $this->hasOne(UserOnboarding::class);
+    }
 }
