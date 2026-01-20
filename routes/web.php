@@ -6,9 +6,7 @@ use App\Http\Middleware\EnsurePhoneIsVerified;
 use App\Http\Controllers\Auth\PhoneVerificationController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 
-Route::get('/', function () {
-    return App::environment('production') ? view('welcome') : redirect()->route('dashboard');
-})->name('home');
+Route::view('/', 'landing.home')->name('welcome');
 
 
 Route::middleware('guest')->group(function () {
@@ -31,6 +29,12 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/logout', function () {
+        auth()->logout();
+        return redirect()->route('login');
+    })->name('logout');
+
+
     Route::view('/verify-phone', 'auth.verify-phone')        
         ->name('phone.verify.notice');
     

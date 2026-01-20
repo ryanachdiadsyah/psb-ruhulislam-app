@@ -1,5 +1,7 @@
 @extends('layouts.auth.base')
 
+@section('title', 'Register Account')
+
 @section('content')
     <div class="row justify-content-md-center">
         <div class="col-md-12 col-lg-4">

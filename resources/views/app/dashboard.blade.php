@@ -1,6 +1,8 @@
-<h1>Logged in</h1>
 
-<form action="/logout" method="POST">
-    @csrf
-    <button type="submit">Logout</button>
-</form>
+@extends('layouts.app.base')
+
+@section('title', 'Dashboard')
+
+@section('content')
+<h1>Logged in</h1>
+@endsection

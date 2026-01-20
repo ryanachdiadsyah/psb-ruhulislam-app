@@ -1,5 +1,7 @@
 @extends('layouts.auth.base')
 
+@section('title', 'Login')
+
 @section('content')
     <div class="row justify-content-md-center">
         <div class="col-md-12 col-lg-4">
@@ -37,7 +39,7 @@
                     </form>
                     <div class="authent-reg">
                         <p>I don't have an account. <a href="{{ route('register') }}">Create an account</a></p>
-                        <p>I lost my password. <a href="{{ route('password.request') }}">Reset password</a></p>
+                        <p>I lost my password. <a href="{{ route('password.request') }}" class="text-danger">Reset password</a></p>
                     </div>
                 </div>
                 <div class="d-flex justify-content-between mt-4 px-4 mb-4">

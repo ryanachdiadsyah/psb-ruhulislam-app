@@ -8,12 +8,14 @@
 		<meta name="keywords" content="PSB, Ruhul Islam, Anak Bangsa, Aceh Besar, Aceh, Penerimaan Santri Baru" />
         <meta name="author" content="Rencong Network Solutions" />
         
-        <title>@yield('title', config('app.name'))</title>
+        <title>@yield('title', '') - {{ config('app.name') }}</title>
 		
 		<link href="https://fonts.googleapis.com/css?family=Poppins:400,500,700,800&display=swap" rel="stylesheet">
         <link href="{{ asset('assets/plugins/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
         <link href="{{ asset('assets/plugins/font-awesome/css/all.min.css') }}" rel="stylesheet">
         <link href="{{ asset('assets/plugins/perfectscroll/perfect-scrollbar.css') }}" rel="stylesheet">
+
+		<link rel="icon" href="{{ asset('assets/images/favicon.ico') }}" type="image/x-icon">
 
         <link href="{{ asset('assets/css/main.min.css') }}" rel="stylesheet">
         @stack('styles')
