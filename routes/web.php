@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\EnsurePhoneIsVerified;
 use App\Http\Controllers\Auth\PhoneVerificationController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\WizardController;
 
 Route::view('/', 'landing.home')->name('welcome');
 
@@ -51,20 +53,21 @@ Route::middleware('auth')->group(function () {
         ->name('phone.verify.request');
     
     Route::prefix('wizard')->group(function () {
-        Route::get('/', [WizardController::class, 'start'])
+        Route::get('step1', [WizardController::class, 'start'])
             ->name('wizard.start');
-    
+
         Route::post('step1', [WizardController::class, 'step1'])
             ->name('wizard.step1');
+        
+        Route::get('step2', [WizardController::class, 'step2View'])
+            ->name('wizard.step2');
     
         Route::post('step2', [WizardController::class, 'step2'])
             ->name('wizard.step2');
     });
 
     // Protected routes for users who have completed onboarding
-    Route::middleware('onboarding.completed')->group(function () {
-        Route::view('dashboard', 'app.dashboard')
-            ->middleware([EnsurePhoneIsVerified::class])
-            ->name('dashboard');
+    Route::middleware([EnsurePhoneIsVerified::class, 'onboarding.completed'])->group(function () {
+        Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
     });
 });

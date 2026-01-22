@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             RegistrationPathSeeder::class,
             InformationSourceSeeder::class,
             RegistrationFeeSeeder::class,
+            PsbConfigSeeder::class,
         ]);
     }
 }

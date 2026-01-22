@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\InformationSource;
 use App\Models\RegistrationFee;
 use App\Models\RegistrationOverride;
 use App\Models\RegistrationPath;
 use App\Models\UserOnboarding;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\PsbConfigService;
 
 class WizardController extends Controller
 {
@@ -19,9 +21,27 @@ class WizardController extends Controller
             return redirect()->route('dashboard');
         }
 
-        return view('wizard.step1', [
+        $scheduleStatus = [
+            'INVITATION' => $this->inSchedule('INVITATION'),
+            'REGULAR'    => $this->inSchedule('REGULAR'),
+        ];
+
+        return view('app.wizard.step1', [
             'paths'  => RegistrationPath::where('is_active', true)->get(),
-            'config' => config('psb'),
+            'scheduleStatus' => $scheduleStatus,
+        ]);
+    }
+
+    public function step2View(Request $request)
+    {
+        $user = $request->user();
+
+        if (! $user->onboarding || $user->onboarding->completed_at) {
+            return redirect()->route('wizard.start');
+        }
+
+        return view('app.wizard.step2', [
+            'sources' => InformationSource::where('is_active', true)->get(),
         ]);
     }
 
@@ -31,12 +51,12 @@ class WizardController extends Controller
 
         return match ($pathCode) {
             'INVITATION' => $now->between(
-                config('psb.invitation_start'),
-                config('psb.invitation_end')
+                PsbConfigService::get('invitation_registration_start'),
+                PsbConfigService::get('invitation_registration_end')
             ),
             'REGULAR' => $now->between(
-                config('psb.regular_start'),
-                config('psb.regular_end')
+                PsbConfigService::get('regular_registration_start'),
+                PsbConfigService::get('regular_registration_end')
             ),
             default => false,
         };
@@ -45,9 +65,9 @@ class WizardController extends Controller
     public function step1(Request $request)
     {
         $data = $request->validate([
-            'path_code'    => ['required', 'in:INVITATION,REGULAR'],
-            'invite_code'  => ['nullable', 'string'],
-            'override_code'=> ['nullable', 'string'],
+            'path_code'     => ['required', 'in:INVITATION,REGULAR'],
+            'invite_code'   => ['required_if:path_code,INVITATION'],
+            'override_code' => ['nullable', 'string'],
         ]);
 
         $user = $request->user();
@@ -57,22 +77,22 @@ class WizardController extends Controller
         }
 
         $path = RegistrationPath::where('code', $data['path_code'])->firstOrFail();
-        $override = null;
 
-        /**
-         * === OVERRIDE (TERLAMBAT) ===
-         */
-        if (! $this->inSchedule($path->code)) {
+        DB::beginTransaction();
 
-            if (empty($data['override_code'])) {
-                return back()->withErrors([
-                    'override_code' => 'Pendaftaran telah ditutup. Masukkan kode izin panitia.',
-                ]);
-            }
+        try {
+            $override = null;
+            $outOfSchedule = ! $this->inSchedule($path->code);
 
-            DB::beginTransaction();
+            /** === OVERRIDE === */
+            if ($outOfSchedule) {
+                if (empty($data['override_code'])) {
+                    DB::rollBack();
+                    return back()->withErrors([
+                        'override_code' => 'Pendaftaran telah ditutup. Masukkan kode izin pendaftaran dari panitia. jika tidak memiliki, silahkan hubungi panitia.',
+                    ]);
+                }
 
-            try {
                 $override = RegistrationOverride::where('code', $data['override_code'])
                     ->where('is_active', true)
                     ->whereNull('used_at')
@@ -100,88 +120,83 @@ class WizardController extends Controller
                         'override_code' => 'Kode izin tidak berlaku untuk jalur ini.',
                     ]);
                 }
-            } catch (\Throwable $e) {
-                DB::rollBack();
-                throw $e;
             }
-        }
 
-        /**
-         * === INVITATION CODE ===
-         */
-        if ($path->requires_invite_code) {
-            if ($data['invite_code'] !== config('psb.invitation_code')) {
-                if ($override) {
+            /** === INVITATION CODE === */
+            if ($path->requires_invite_code) {
+                $validCode = PsbConfigService::get('invitation_code');
+
+                if ($data['invite_code'] !== $validCode) {
                     DB::rollBack();
+                    return back()->withErrors([
+                        'invite_code' => 'Kode undangan tidak valid.',
+                    ]);
                 }
+            }
 
-                return back()->withErrors([
-                    'invite_code' => 'Kode undangan tidak valid.',
+            /** === FEE SNAPSHOT === */
+            $fee = 0;
+            if (! $path->is_free) {
+                $fee = RegistrationFee::where('registration_path_id', $path->id)
+                    ->where('is_active', true)
+                    ->value('amount');
+
+                if ($fee === null) {
+                    DB::rollBack();
+                    abort(500, 'Registration fee not configured');
+                }
+            }
+
+            /** === SAVE ONBOARDING === */
+            UserOnboarding::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'registration_number'          => UserOnboarding::generateRegistrationNumber(),
+                    'initial_registration_path_id' => $path->id,
+                    'current_registration_path_id' => $path->id,
+                    'registration_path_id'         => $path->id, // legacy
+                    'invite_code_used'             => $path->requires_invite_code
+                        ? ($data['invite_code'] ?? null)
+                        : null,
+                    'override_code_used'           => $override?->code,
+                    'fee_amount'                   => $fee,
+                ]
+            );
+
+            if ($override) {
+                $override->update([
+                    'used_at'         => now(),
+                    'used_by_user_id' => $user->id,
+                ]);
+
+                \Log::channel('security')->warning('registration.override_used', [
+                    'user_id' => $user->id,
+                    'path' => $path->code,
+                    'override_code' => $override->code,
+                    'ip' => $request->ip(),
                 ]);
             }
-        }
 
-        /**
-         * === FEE SNAPSHOT ===
-         */
-        $fee = 0;
-
-        if (! $path->is_free) {
-            $fee = RegistrationFee::where('registration_path_id', $path->id)
-                ->where('is_active', true)
-                ->value('amount');
-
-            if ($fee === null) {
-                if ($override) {
-                    DB::rollBack();
-                }
-
-                abort(500, 'Registration fee not configured');
+            if ($outOfSchedule) {
+                \Log::channel('security')->info('registration.out_of_schedule', [
+                    'user_id' => $user->id,
+                    'path' => $path->code,
+                    'used_override' => (bool) $override,
+                ]);
             }
-        }
-
-        /**
-         * === SAVE ONBOARDING ===
-         */
-        UserOnboarding::updateOrCreate(
-            ['user_id' => $user->id],
-            [
-                'initial_registration_path_id' => $path->id,
-                'current_registration_path_id' => $path->id,
-
-                'registration_path_id' => $path->id, // ← boleh dipertahankan atau nanti dihapus
-                'invite_code_used'     => $path->requires_invite_code
-                    ? ($data['invite_code'] ?? null)
-                    : null,
-                'override_code_used'   => $override?->code,
-                'fee_amount'           => $fee,
-            ]
-        );
-
-        if ($override) {
-            $override->update([
-                'used_at'        => now(),
-                'used_by_user_id'=> $user->id,
-            ]);
-
-            \Log::channel('security')->warning('registration.override_used', [
-                'user_id' => $user->id,
-                'path' => $path->code,
-                'override_code' => $override->code,
-                'ip' => $request->ip(),
-            ]);
 
             DB::commit();
+            return redirect()->route('wizard.step2');
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return redirect()->route('wizard.start')->with([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan saat memproses data. Silahkan coba lagi.',
+            ]);
         }
-
-        \Log::channel('security')->info('registration.out_of_schedule', [
-            'user_id' => $user->id,
-            'path' => $path->code,
-            'used_override' => (bool) $override,
-        ]);
-
-        return redirect()->route('wizard.step2');
     }
+
 
     public function step2(Request $request)
     {

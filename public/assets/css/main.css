@@ -782,6 +782,7 @@ body.sidebar-hidden .page-header .navbar #navbarNav #leftNav > li > a#sidebar-to
 
 .page-header .navbar #headerNav > ul > li > a img {
     width: 40px;
+    border-radius: 50%;
 }
 
 .page-header .navbar .navbar-nav {
@@ -2715,8 +2716,7 @@ body.error-page .container {
     position: relative;
     border-radius: 15px;
     z-index: 1;
-    height: 350px;
-    background: url(../images/profile-bg.jpg) center center no-repeat;
+    height: 280px;
     background-size: cover;
 }
 
@@ -3313,7 +3313,7 @@ ul.profile-about-list li.profile-about-list-buttons {
     }
     
     .profile-cover {
-        height: 200px;
+        height: 160px;
     }
     
     .profile-img {

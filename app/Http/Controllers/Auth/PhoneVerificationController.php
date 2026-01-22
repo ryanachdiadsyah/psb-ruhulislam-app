@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\OtpService;
-use Illuminate\Support\Facades\Auth;
-use App\Services\Whatsapp\WhatsappGateway;
 use App\Jobs\SendOtpWhatsapp;
 
 class PhoneVerificationController extends Controller
@@ -43,6 +41,14 @@ class PhoneVerificationController extends Controller
             'channel' => ['required', 'in:whatsapp,sms'],
         ]);
 
+        // Delete Soon if sms method is implemented on server side
+        if ($data['channel'] === 'sms') {
+            return back()->with([
+                'status' => 'error',
+                'message' => 'Pengiriman OTP melalui SMS belum tersedia saat ini. Silahkan pilih WhatsApp sebagai channel verifikasi.',
+            ]);
+        }
+
         try {
             $code = $otp->generateForUser($user->id, $data['channel']);
         } catch (\RuntimeException $e) {
@@ -70,12 +76,13 @@ class PhoneVerificationController extends Controller
             ));
         }
 
-        if ($data['channel'] === 'sms') {
-            return back()->with([
-                'status' => 'error',
-                'message' => 'Pengiriman OTP melalui SMS belum tersedia saat ini. Silahkan pilih WhatsApp sebagai channel verifikasi.',
-            ]);
-        }
+        // Enable back after sms method is implemented on server side
+        // if ($data['channel'] === 'sms') {
+        //     return back()->with([
+        //         'status' => 'error',
+        //         'message' => 'Pengiriman OTP melalui SMS belum tersedia saat ini. Silahkan pilih WhatsApp sebagai channel verifikasi.',
+        //     ]);
+        // }
 
         return back()->with([
             'status' => 'success',
