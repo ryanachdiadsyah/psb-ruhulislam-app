@@ -20,6 +20,8 @@ class InformationSourceSeeder extends Seeder
             'Sekolah',
             'Brosur',
             'Website',
+            'Saudara/Teman',
+            'Kegiatan Sekolah',
             'Lainnya',
         ];
 

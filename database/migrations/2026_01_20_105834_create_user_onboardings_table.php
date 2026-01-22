@@ -16,8 +16,10 @@ return new class extends Migration
 
             $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
 
-            $table->foreignId('registration_path_id')->constrained();
-            $table->foreignId('information_source_id')->constrained();
+            $table->string('registration_number')->nullable()->index();
+
+            $table->foreignId('registration_path_id')->nullable()->constrained();
+            $table->foreignId('information_source_id')->nullable()->constrained();
 
             $table->string('invite_code_used')->nullable();
             $table->string('override_code_used')->nullable();

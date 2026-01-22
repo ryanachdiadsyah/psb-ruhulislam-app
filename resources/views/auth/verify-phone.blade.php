@@ -20,7 +20,7 @@
                         <form method="POST" action="{{ route('phone.verify.request') }}">
                             @csrf
                             <span class="mt-2">Choose your preferred verification method</span>
-                            <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-between mt-2 gap-2">
                                 <button type="submit" class="btn btn-primary w-100 me-2" name="channel" value="whatsapp" id="channel_whatsapp" {{ $otpSent ? 'disabled' : '' }}><i class="fab fa-whatsapp"></i> WhatsApp</button>
                                 <button type="submit" class="btn btn-success w-100" name="channel" value="sms" id="channel_sms" {{ $otpSent ? 'disabled' : '' }}><i class="fas fa-envelope"></i> SMS</button>
                             </div>
@@ -50,9 +50,9 @@
                         </form>
                     </div>
                 </div>
-                <div class="d-flex justify-content-between mt-4 px-4 mb-4">
+                <div class="d-flex justify-content-center mt-4 px-4 mb-4">
                     <form action="{{ route('logout') }}" method="POST">
-                        <p>I'm give up, 
+                        <p>I'm give up 😩 
                         @csrf
                         <a href="javascript:void(0)" onclick="this.closest('form').submit();">Logout</a>
                         </p>

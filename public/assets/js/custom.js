@@ -52,9 +52,14 @@ function processFormWithBlocking(form) {
 }
 
 function processForm(form) {
-    var btn = form.querySelector('button[type="submit"]');
+    const btn = form.querySelector('button[type="submit"]');
+    if (!btn || btn.disabled) return false;
+
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm align-middle ms-2"></span> Please Wait...';
+    btn.innerHTML = `
+        <span class="spinner-border spinner-border-sm align-middle me-2"></span>
+        Please wait...
+    `;
     return true;
 }
 
