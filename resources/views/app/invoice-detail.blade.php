@@ -59,11 +59,11 @@
                     <div class="row">
                         <div class="col">
                             <p class="info">Invoice Date:</p>
-                            <p>{{ $invoice->created_at->format('M d, Y') }}</p>
+                            <p>{{ dateIndo($invoice->created_at) }}</p>
                         </div>
                         <div class="col">
                             <p class="info">Due Date:</p>
-                            <p>{{ $invoice->due_date}}</p>
+                            <p>{{ dateIndo($invoice->due_date) }}</p>
                         </div>
                         <div class="col">
                             <p class="info">Invoice to:</p>
@@ -92,9 +92,9 @@
                                 <tr>
                                     <th scope="row">{{ $i++ }}</th>
                                     <td>{{ $item->label }}</td>
-                                    <td>{{ $item->due_date }}</td>
+                                    <td>{{ dateIndo($item->due_date) }}</td>
                                     <td>Rp {{ number_format($item->amount, 0, ',', '.') }}</td>
-                                    <td>{{ $item->status }}</td>
+                                    <td>{!! $item->displayStatusBadge() !!}</td>
                                 </tr>
                                 @empty
                                 <tr>

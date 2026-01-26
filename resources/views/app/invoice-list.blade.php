@@ -39,12 +39,10 @@
                                     Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}
                                 </td>
                                 <td>
-                                    {{ optional($invoice->due_date)->translatedFormat('d M Y') ?? '-' }}
+                                    {{ dateIndo($invoice->due_date) ?? '-' }}
                                 </td>
                                 <td>
-                                    <span class="badge bg-secondary">
-                                        {{ $invoice->displayStatus() }}
-                                    </span>
+                                    {!! $invoice->displayStatusBadge() !!}
                                 </td>
                             </tr>
                             @empty

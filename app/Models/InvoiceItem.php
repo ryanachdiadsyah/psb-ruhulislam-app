@@ -31,4 +31,34 @@ class InvoiceItem extends Model
     {
         return $this->payment_method === 'MANUAL';
     }
+
+    public function displayStatus()
+    {
+        if ($this->status === 'PAID') {
+            return 'Lunas';
+        }
+
+        if ($this->status === 'UNPAID') {
+            return 'Belum Dibayar';
+        }
+
+        if ($this->status === 'WAITING_CONFIRMATION') {
+            return 'Menunggu Konfirmasi';
+        }
+    }
+
+    public function displayStatusBadge()
+    {
+        if ($this->status === 'PAID') {
+            return '<span class="badge bg-success">Lunas</span>';
+        }
+
+        if ($this->status === 'UNPAID') {
+            return '<span class="badge bg-danger">Belum Dibayar</span>';
+        }
+
+        if ($this->status === 'WAITING_CONFIRMATION') {
+            return '<span class="badge bg-warning">Menunggu Konfirmasi</span>';
+        }
+    }
 }
