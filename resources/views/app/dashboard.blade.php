@@ -19,7 +19,7 @@
             </div>
             <div class="profile-header-menu d-none d-xl-block">
                 <ul class="list-unstyled">
-                    <li><a href="#">Tagihan</a></li>
+                    <li><a href="{{ route('invoices.list') }}">Tagihan</a></li>
                     <li><a href="#">Data Pribadi</a></li>
                     <li><a href="#">Cetak Formulir</a></li>
                     <li><a href="#">Cetak Kartu</a></li>

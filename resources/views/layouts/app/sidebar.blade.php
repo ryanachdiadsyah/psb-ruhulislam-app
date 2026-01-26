@@ -6,8 +6,8 @@
         <li class="{{ request()->routeIs('dashboard*') ? 'active-page' : '' }}">
             <a href="{{ route('dashboard') }}"><i data-feather="home"></i>Dashboard</a>
         </li>
-        <li class="{{ request()->routeIs('billing*') ? 'active-page' : '' }}">
-            <a href="#"><i data-feather="dollar-sign"></i>Tagihan saya</a>
+        <li class="{{ request()->routeIs('invoices*') ? 'active-page' : '' }}">
+            <a href="{{ route('invoices.list') }}"><i data-feather="dollar-sign"></i>Tagihan saya</a>
         </li>
 
         <li class="{{ request()->routeIs('data/*') ? 'active-page' : '' }}">

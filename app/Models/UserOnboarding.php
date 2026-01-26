@@ -15,6 +15,7 @@ class UserOnboarding extends Model
         'invite_code_used',
         'override_code_used',
         'fee_amount',
+        'payment_status',
         'information_source_id',
         'completed_at',
     ];
