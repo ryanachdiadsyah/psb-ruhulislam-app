@@ -6,6 +6,8 @@ use App\Http\Middleware\EnsurePhoneIsVerified;
 use App\Http\Controllers\Auth\PhoneVerificationController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\WizardController;
 
 Route::view('/', 'landing.home')->name('welcome');
@@ -69,5 +71,8 @@ Route::middleware('auth')->group(function () {
     // Protected routes for users who have completed onboarding
     Route::middleware([EnsurePhoneIsVerified::class, 'onboarding.completed'])->group(function () {
         Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+        Route::get('invoices', [InvoiceController::class, 'showInvocePage'])->name('invoices.list');
+        Route::get('invoices/{invoice}', [InvoiceController::class, 'showInvoiceDetail'])->name('invoices.detail');
+        Route::get('payment/initiate', [PaymentController::class, 'initiate'])->name('payment.initiate');
     });
 });

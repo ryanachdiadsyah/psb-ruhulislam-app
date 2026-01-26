@@ -7,6 +7,7 @@ use App\Models\RegistrationFee;
 use App\Models\RegistrationOverride;
 use App\Models\RegistrationPath;
 use App\Models\UserOnboarding;
+use App\Services\InvoiceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\PsbConfigService;
@@ -160,6 +161,7 @@ class WizardController extends Controller
                         : null,
                     'override_code_used'           => $override?->code,
                     'fee_amount'                   => $fee,
+                    'payment_status'               => $fee > 0 ? 'UNPAID' : 'EXEMPT',
                 ]
             );
 
@@ -218,6 +220,8 @@ class WizardController extends Controller
             'information_source_id' => $data['information_source_id'],
             'completed_at'          => now(),
         ]);
+
+        app(InvoiceService::class)->createRegistrationInvoice($user);
 
         return redirect()->route('dashboard');
     }
