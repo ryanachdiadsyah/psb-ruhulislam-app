@@ -74,5 +74,6 @@ Route::middleware('auth')->group(function () {
         Route::get('invoices', [InvoiceController::class, 'showInvocePage'])->name('invoices.list');
         Route::get('invoices/{invoice}', [InvoiceController::class, 'showInvoiceDetail'])->name('invoices.detail');
         Route::get('payment/initiate', [PaymentController::class, 'initiate'])->name('payment.initiate');
+        Route::post('payment/upload-proof', [PaymentController::class, 'manualPaymentUpload'])->name('payment.manual.upload');
     });
 });
