@@ -41,4 +41,36 @@ class UserOnboarding extends Model
         return sprintf('%d%04d', $year, $count);
     }
 
+    public function displayPaymentStatus()
+    {
+        if ($this->payment_status === 'PAID') {
+            return 'Lunas';
+        }
+
+        if ($this->payment_status === 'UNPAID') {
+            return 'Belum Dibayar';
+        }
+
+        if ($this->payment_status === 'EXEMPT') {
+            return 'Gratis - Tanpa Biaya';
+        }
+        return "-";
+    }
+
+    public function displayPaymentStatusBadge()
+    {
+        if ($this->payment_status === 'PAID') {
+            return '<span class="badge bg-success">Lunas</span>';
+        }
+
+        if ($this->payment_status === 'UNPAID') {
+            return '<span class="badge bg-danger">Belum Dibayar</span>';
+        }
+
+        if ($this->payment_status === 'EXEMPT') {
+            return '<span class="badge bg-success">Gratis</span>';
+        }
+
+        return "-";
+    }
 }

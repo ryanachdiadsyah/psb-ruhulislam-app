@@ -59,13 +59,12 @@
                 <div class="transactions-list">
                     <div class="tr-item">
                         <div class="tr-company-name">
-                            <div class="tr-icon tr-card-icon tr-card-bg-success text-dark">
+                            <div class="tr-icon tr-card-icon tr-card-bg-info text-dark">
                                 <i data-feather="check"></i>
                             </div>
                             <div class="tr-text">
                                 <h4>Pembayaran Pendaftaran</h4>
-                                <span class="badge bg-success">Lunas</span>
-                                <span class="badge border border-success text-dark">QRIS</span>
+                                {!! $onboarding->displayPaymentStatusBadge() !!}
                             </div>
                         </div>
                     </div>
@@ -73,7 +72,7 @@
                 <div class="transactions-list">
                     <div class="tr-item">
                         <div class="tr-company-name">
-                            <div class="tr-icon tr-card-icon tr-card-bg-success text-dark">
+                            <div class="tr-icon tr-card-icon tr-card-bg-info text-dark">
                                 <i data-feather="check"></i>
                             </div>
                             <div class="tr-text">
@@ -86,7 +85,7 @@
                 <div class="transactions-list">
                     <div class="tr-item">
                         <div class="tr-company-name">
-                            <div class="tr-icon tr-card-icon tr-card-bg-warning text-dark">
+                            <div class="tr-icon tr-card-icon tr-card-bg-info text-dark">
                                 <i data-feather="clock"></i>
                             </div>
                             <div class="tr-text">
@@ -99,7 +98,7 @@
                 <div class="transactions-list">
                     <div class="tr-item">
                         <div class="tr-company-name">
-                            <div class="tr-icon tr-card-icon tr-card-bg-danger text-dark">
+                            <div class="tr-icon tr-card-icon tr-card-bg-info text-dark">
                                 <i data-feather="x-square"></i>
                             </div>
                             <div class="tr-text">
@@ -112,7 +111,7 @@
                 <div class="transactions-list">
                     <div class="tr-item">
                         <div class="tr-company-name">
-                            <div class="tr-icon tr-card-icon tr-card-bg-danger text-dark">
+                            <div class="tr-icon tr-card-icon tr-card-bg-info text-dark">
                                 <i data-feather="x-square"></i>
                             </div>
                             <div class="tr-text">

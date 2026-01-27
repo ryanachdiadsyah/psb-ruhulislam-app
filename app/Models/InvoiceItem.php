@@ -15,6 +15,7 @@ class InvoiceItem extends Model
         'payment_method',
         'payment_channel',
         'paid_at',
+        'payment_proof',
     ];
 
     public function invoice()

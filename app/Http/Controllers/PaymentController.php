@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ManualPaymentRequest;
+use App\Http\Requests\ManualPaymentUploadRequest;
+use App\Models\InvoiceItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Storage;
 
 class PaymentController extends Controller
 {
@@ -42,8 +44,44 @@ class PaymentController extends Controller
         ]);
     }
 
-    public function manualPaymentUpload(Request $request)
+    public function manualPaymentUpload(ManualPaymentUploadRequest $request)
     {
-        
+        $user = auth()->user();
+
+        $itemIds = $request->selected_items;
+
+        $items = InvoiceItem::whereIn('id', $itemIds)
+            ->where('status', 'UNPAID')
+            ->whereHas('invoice', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            })
+            ->get();
+
+        if ($items->count() !== count($itemIds)) {
+            return back()->withErrors([
+                'selected_items' => 'Beberapa item tidak valid atau sudah dibayar.',
+            ])->withInput();
+        }
+
+        $file     = $request->file("payment_proof");
+        $folder   = "student/" . auth()->id() . "/psb_payments";
+        $filename = "payment_proof_" . time() . "_." . $file->getClientOriginalExtension();
+        $fullPath = $folder . '/' . $filename;
+
+        Storage::disk('s3')->put($fullPath, file_get_contents($file));
+
+        foreach ($items as $item) {
+            $item->update([
+                'payment_method' => 'MANUAL',
+                'payment_channel' => $request->payment_channel,
+                'payment_proof' => $fullPath,
+                'status' => 'WAITING_CONFIRMATION',
+            ]);
+        }
+
+        return back()->with([
+            'status'    => 'success',
+            'message'   => 'Bukti pembayaran berhasil diunggah. Silakan tunggu konfirmasi dari admin.',
+        ]);
     }
 }

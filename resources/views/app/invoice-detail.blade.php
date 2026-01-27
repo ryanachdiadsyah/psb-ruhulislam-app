@@ -2,7 +2,6 @@
 
 @section('title', 'Invoice Detail')
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('assets/css/pages/pages.css') }}">
     <style>
     /* existing print rules kept */
     @media print {
@@ -30,6 +29,16 @@
             display: none;
             visibility: hidden;
         }
+        
+        #modalPaymentMethodButton {
+            display: none;
+            visibility: hidden;
+        }
+
+        #modalConfirmButton {
+            display: none;
+            visibility: hidden;
+        }
 
         /* ensure watermark sits behind text by forcing lower stacking for printed content */
         #printTable > * {
@@ -37,9 +46,6 @@
             z-index: 10000;
         }
     }
-
-    /* hide watermark on screen */
-    .wm-print { display: none; }
     </style>
 @endpush
 @section('content')
@@ -90,12 +96,21 @@
                                 @endphp
                                 @forelse ($invoice->items as $index => $item)
                                 <tr>
-                                    <th scope="row">{{ $i++ }}</th>
+                                    <td>
+                                        <input type="checkbox"
+                                            class="item-checkbox"
+                                            name="selected_items[]"
+                                            value="{{ $item->id }}"
+                                            @if($item->status !== 'UNPAID') disabled @endif
+                                        >
+                                    </td>
+
                                     <td>{{ $item->label }}</td>
                                     <td>{{ dateIndo($item->due_date) }}</td>
                                     <td>Rp {{ number_format($item->amount, 0, ',', '.') }}</td>
                                     <td>{!! $item->displayStatusBadge() !!}</td>
                                 </tr>
+
                                 @empty
                                 <tr>
                                     <td colspan="5" class="text-center text-muted">
@@ -124,15 +139,23 @@
                             <p>Tax <span>Rp {{ number_format($invoice->tax ?? 0, 0, ',', '.') }}</span></p>
                             <p class="bold">Total <span>Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</span></p>
                             <div class="d-grid gap-2">
-                                <button class="btn btn-danger m-t-xs" type="button" id="btnPrint">Print Invoice</button>
-
-                                @if($invoice->status == 'UNPAID' || $invoice->status == 'PARTIAL')
-                                <button type="button" class="btn btn-primary m-t-xs" id="modalConfirmButton">Konfirmasi Pembayaran</button>
-                                @endif
                                 
-                                @if($invoice->status == 'PAID')
-                                <p>Kami sudah menerima bukti transfer anda, namun berikan kami waktu untuk melakukan verifikasi</p>
-                                @endif
+
+                                @php
+                                    $hasUnpaidItems = $invoice->items->where('status', 'UNPAID')->count() > 0;
+                                @endphp
+                                <div class="d-flex justify-content-between gap-2 ">
+                                    <button class="btn btn-danger" type="button" id="btnPrint">Print</button>
+                                    
+                                    @if($hasUnpaidItems)
+                                    <button type="button" class="btn btn-outline-warning" id="modalPaymentMethodButton">
+                                        Metode Pembayaran
+                                    </button>
+                                    <button type="button" class="btn btn-outline-primary" id="modalConfirmButton">
+                                        Konfirmasi Pembayaran
+                                    </button>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -142,23 +165,25 @@
     </div>
 </div>
 
-@if($invoice->status == 'UNPAID' || $invoice->status == 'PARTIAL')
+@if($hasUnpaidItems)
+{{-- Modal Konfirmasi Pembayaran --}}
 <div class="modal fade" id="modalConfirm" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Konfirmasi Pembayaran</h5>
             </div>
-            <form action="#" method="POST" enctype="multipart/form-data" onsubmit="return processDataWithLoading(this)">
+            <form action="{{ route('payment.manual.upload') }}" method="POST" enctype="multipart/form-data" onsubmit="return processForm(this)">
                 @csrf
+                <div id="selectedItemsContainer"></div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="manual_bank_from" class="form-label">Transfer Via Bank</label>
-                        <input type="text" class="form-control" name="manual_bank_from" placeholder="Bank BSI / Bank Aceh" required>
+                        <label for="payment_channel" class="form-label">Transfer Via Bank</label>
+                        <input type="text" class="form-control" name="payment_channel" placeholder="Bank BSI / Bank Aceh" required>
                     </div>
                     <div class="mb-3">
-                        <label for="evidence" class="form-label">Bukti Transfer</label>
-                        <input type="file" class="form-control" name="evidence" required accept="image/*">
+                        <label for="payment_proof" class="form-label">Bukti Transfer</label>
+                        <input type="file" class="form-control" name="payment_proof" required accept="image/*">
                         <small class="text-muted">Max 1MB | JPG, JPEG, PNG</small>
                     </div>
                 </div>
@@ -184,7 +209,7 @@
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="heading1">
                         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="true" aria-controls="collapse1">
-                            <img src="{{ asset('assets/images/transfer.png') }}" alt="" width="20px" class="mx-2"> Transfer Bank (Verifikasi Manual)
+                            Transfer Bank (Verifikasi Manual)
                         </button>
                         </h2>
                         <div id="collapse1" class="accordion-collapse collapse show" aria-labelledby="heading1" data-bs-parent="#accordionPaymentMethod">
@@ -202,7 +227,7 @@
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="heading2">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
-                            <img src="{{ asset('assets/images/qr-code.png') }}" alt="" width="20px" class="mx-2"> QRIS
+                            QRIS
                         </button>
                         </h2>
                         <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="heading2" data-bs-parent="#accordionPaymentMethod">
@@ -216,7 +241,7 @@
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="heading3">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
-                            <img src="{{ asset('assets/images/virtual-card.png') }}" alt="" width="20px" class="mx-2"> Virtual Account
+                            Virtual Account
                         </button>
                         </h2>
                         <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="heading3" data-bs-parent="#accordionPaymentMethod">
@@ -230,15 +255,13 @@
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="heading4">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4" aria-expanded="false" aria-controls="collapse4">
-                            <img src="{{ asset('assets/images/outlet.png') }}" alt="" width="20px" class="mx-2"> Outlet
+                            Outlet
                         </button>
                         </h2>
                         <div id="collapse4" class="accordion-collapse collapse" aria-labelledby="heading4" data-bs-parent="#accordionPaymentMethod">
                         <div class="accordion-body">
                             <center>
                                 <h5 class="text-danger">Fitur ini Sedang dalam pengembangan</h5>
-                                <img src="{{ asset('assets/images/indomaret.png') }}" alt="" width="100px" class="mx-2">
-                                <img src="{{ asset('assets/images/alfa.png') }}" alt="" width="100px" class="mx-2">
                             </center>
                         </div>
                         </div>
@@ -246,14 +269,13 @@
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="heading5">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
-                            <img src="{{ asset('assets/images/digital-wallet.png') }}" alt="" width="20px" class="mx-2"> E-Wallet
+                            E-Wallet
                         </button>
                         </h2>
                         <div id="collapse5" class="accordion-collapse collapse" aria-labelledby="heading5" data-bs-parent="#accordionPaymentMethod">
                         <div class="accordion-body">
                             <center>
                                 <h5 class="text-danger">Fitur ini Sedang dalam pengembangan</h5>
-                                <img src="{{ asset('assets/images/e-wallet.png') }}" alt="" width="100%" class="mx-2">
                             </center>
                         </div>
                         </div>
@@ -274,12 +296,28 @@
     <script>
         $(document).ready(function () {
             $('#modalConfirmButton').on('click', function() {
+                let container = $('#selectedItemsContainer');
+                container.html(''); // reset dulu
+
+                $('.item-checkbox:checked').each(function() {
+                    container.append(`
+                        <input type="hidden" name="selected_items[]" value="${$(this).val()}">
+                    `);
+                });
+
+                if ($('.item-checkbox:checked').length === 0) {
+                    showSwal('warning', 'Pilih minimal satu item untuk dikonfirmasi pembayarannya.');
+                    return;
+                }
+
                 $('#modalConfirm').modal('show');
             });
+            
             $('#modalPaymentMethodButton').on('click', function () {
                 $('#modalPaymentMethod').modal('show');
             });
         });
+
         // Print area
         $('#btnPrint').on('click', function() {
             var printContents = document.getElementById('printTable').innerHTML;
